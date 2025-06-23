@@ -1,41 +1,46 @@
+import pandas as pd
 import yfinance as yf
 
-# 예: 애플(AAPL) 티커
-ticker = yf.Ticker("AAPL")
-info = ticker.info
+class Stock:
+    def __init__(self, ticker) -> None:
+        self.ticker = ticker
+        self.stock = yf.Ticker(self.ticker)
 
-# 재무제표(Financials)
-def financial_statements():
-    return {
-        'income_statement': ticker.financials,
-        'balance_sheet': ticker.balance_sheet,
-        'cash_flow': ticker.cashflow,
-    }
+    def financial_info(self):
+        return {
+            'info': self.stock.info,
+            'income_statement': self.stock.quarterly_income_stmt,
+            'balance_sheet': self.stock.quarterly_balance_sheet,
+            'cash_flow': self.stock.quarterly_cash_flow,
+            'history': self.stock.history(period='1mo'),
+        }
 
-def value_evaluation():
-    return {
-        'PER': info.get('trailingPE'),
-        'PBR': info.get('priceToBook'),
-        'PSR': info.get('priceToSalesTrailing12Months'),
-        'dividend_yield': info.get('dividendYield'),
-        'ROE': info.get('returnOnEquity'),
-    }
+    def report_support(self):
+        """
+        금융 전문가의 분석을 보조할 지표들
+        """
+        def is_float(x):
+            try:
+                float(x)
+                return True
+            except ValueError:
+                return False
+            except TypeError:
+                return False
+        stock = self.stock
+        info = pd.DataFrame.from_dict(stock.info, orient='index', columns=['Value'])
+        info = info[info['Value'].apply(is_float)]
 
-def blue_chip_stock():
-    return {
-        'ROE': info.get('returnOnEquity'),
-        'ROA': info.get('returnOnAssets'),
-        'current_ratio': info.get('currentRatio'),
-        'debt_to_equity': info.get('debtToEquity'),
-        'profit_margin': info.get('profitMargins'),
-    }
+        return f'''
+        ### Financials
+        {info.to_markdown()}
 
-def volume():
-    hist = ticker.history(period="1mo")
-    return {
-        'volume': hist['Volume'],
-        'open': hist['Open'],
-        'high': hist['High'],
-        'low': hist['Low'],
-        'close': hist['Close'],
-    }    
+        #### Quarterly Income Statement
+        {stock.quarterly_income_stmt.loc[['Total Revenue', 'Gross Profit', 'Operating Income', 'Net Income']].to_markdown()}"""
+
+        #### Quarterly Balance Sheet
+        {stock.quarterly_balance_sheet.loc[['Total Assets', 'Total Liabilities Net Minority Interest', 'Stockholders Equity']].to_markdown()}"""
+
+        #### Quarterly Cash Flow
+        {stock.quarterly_cash_flow.loc[['Operating Cash Flow', 'Investing Cash Flow', 'Financing Cash Flow']].to_markdown()}"""
+        '''
