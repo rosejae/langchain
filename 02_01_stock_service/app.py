@@ -3,6 +3,12 @@ import streamlit as st
 from search import search_stocks
 from stock_info import Stock
 from backend import AI_report
+from comments import (
+    create_connection, 
+    create_table, 
+    insert_comment, 
+    get_all_comments,
+    )
 
 @st.cache_data
 def cache_AI_report(ticker):
@@ -81,6 +87,16 @@ with tab2:
 
 with tab3:
     st.header('종목 토론실')
-    st.write('여기에 종목 토론실 내용을 추가하세요.')
+    conn = create_connection()
+    create_table(conn)
     
+    for comment in get_all_comments(conn):
+        comment_time, comment_text = comment
+        st.write(f'{comment_time}: {comment_text}')
+        
+    new_comment = st.text_area('댓글을 입력하세요')
+    if st.button('댓글 작성'):
+        insert_comment(conn, f'{selected.name} - {new_comment}')
+        st.success('댓글이 작성되었습니다')
+        st.rerun()
     
