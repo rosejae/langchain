@@ -29,18 +29,25 @@ class Stock:
                 return False
         stock = self.stock
         info = pd.DataFrame.from_dict(stock.info, orient='index', columns=['Value'])
-        info = info[info['Value'].apply(is_float)]
+        info = info.loc[info['Value'].apply(is_float)]
 
         return f'''
         ### Financials
         {info.to_markdown()}
 
         #### Quarterly Income Statement
-        {stock.quarterly_income_stmt.loc[['Total Revenue', 'Gross Profit', 'Operating Income', 'Net Income']].to_markdown()}"""
+        {stock.quarterly_income_stmt.loc[['Total Revenue', 'Gross Profit', 'Operating Income', 'Net Income']].to_markdown()}
 
         #### Quarterly Balance Sheet
-        {stock.quarterly_balance_sheet.loc[['Total Assets', 'Total Liabilities Net Minority Interest', 'Stockholders Equity']].to_markdown()}"""
+        {stock.quarterly_balance_sheet.loc[['Total Assets', 'Total Liabilities Net Minority Interest', 'Stockholders Equity']].to_markdown()}
 
         #### Quarterly Cash Flow
-        {stock.quarterly_cash_flow.loc[['Operating Cash Flow', 'Investing Cash Flow', 'Financing Cash Flow']].to_markdown()}"""
+        {stock.quarterly_cash_flow.loc[['Operating Cash Flow', 'Investing Cash Flow', 'Financing Cash Flow']].to_markdown()}
         '''
+        
+if __name__ == '__main__':
+    import pdb 
+    
+    stock = Stock("AAPL")
+    stock.report_support()
+    

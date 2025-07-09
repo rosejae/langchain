@@ -5,6 +5,7 @@ client = meilisearch.Client('http://localhost:7700', 'aSampleMasterKey')
 
 def bootstrap_stocks():
     df_stocks = pd.read_csv('nasdaq_screener_1750649212989.csv', na_filter=False)
+    # df_stocks = pd.read_csv('nasdaq_screener_1750649212989.csv')
 
     # df[df['Symbol'].str.contains(r'[^a-zA-Z0-9-_/^ ]', regex=True)]
     df_stocks['id'] = df_stocks['Symbol'].str.strip().replace(r'[/^]', '_', regex=True)
